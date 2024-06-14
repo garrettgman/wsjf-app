@@ -55,7 +55,7 @@ theme.flatly()
 with ui.layout_columns(col_widths=(8, 4, 12)):
     ui.markdown(
         """
-        **What is Weighted Shortest Job First?**
+        # What is Weighted Shortest Job First?
 
         Weighted Shortest Job First (WSJF) is a method for prioritizing work 
         that optimizes the rate at which your team delivers value. 
@@ -67,6 +67,8 @@ with ui.layout_columns(col_widths=(8, 4, 12)):
         - **Urgency** - What value do we permanently lose by delaying the task?
         - **Risk Reduction** - Will doing the task now reduce the risk of not delivering on this or another task in the future?
         - **Opportunity Enablement** - Will doing the task create new opportunities, for example from what we learn?
+        
+        Use the _editable_ table below to prioritize your team's work.
         """
     )
 
