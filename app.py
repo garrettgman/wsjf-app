@@ -1,23 +1,24 @@
 # app.py
 
 import pandas as pd
+import faicons as fa
 from shiny import reactive
 from shiny.express import render, input, ui
-import faicons as fa
+from shinyswatch import theme
 
 # Prepare initial table
 df = pd.DataFrame({
-    'Job Description': ["A", "B", "C"],
-    'Size': [4, 5, 6],
-    'Value': [1, 2, 3],
-    'Urgency': [1, 2, 3],
-    'Risk Reduction': [0, 0, 0],
-    'Opportunity': [0, 0, 0]
+    'Job Description': ["Submit TPS Report", "Write Cover Sheet", "Make Coffee"],
+    'Size': [3, 1, 1],
+    'Value': [5, 0, 1],
+    'Urgency': [1, 0, 1],
+    'Risk Reduction': [3, 1, 1],
+    'Opportunity': [1, 0, 0]
 })
 
 empty_row = {
     'Job Description': "",
-    'Size': 0,
+    'Size': 1,
     'Value': 0,
     'Urgency': 0,
     'Risk Reduction': 0,
@@ -35,10 +36,16 @@ def cell_to_int(s, column):
         raise SafeException(
                 "{column} values should be integers."
             )
-    if result > 0:
-        return result
+    if column == 'Size' and result < 1 :
+        raise SafeException("Size values should be positive, non-zero integers.")
     else:
-        raise SafeException("{column} values should be non-zero, positive integers.")
+        return result
+
+def wsjf_norm(x):
+    if (x == 0).any():
+        return x
+    else:
+        return x / x.min()
 
 # Set up the UI
 
@@ -47,18 +54,18 @@ ui.page_opts(fillable=True)
 with ui.layout_columns(col_widths=(8, 4, 12)):
     ui.markdown(
         """
-        **What is Weighted Shortest Job First?**")
+        **What is Weighted Shortest Job First?**
 
         Weighted Shortest Job First (WSJF) is a method for prioritizing work 
-        that optimizes the rate at which your team delivers value. In other words, 
+        that optimizes the rate at which your team delivers value. 
         WSJF prioritizes quick wins and important jobs. It grades tasks on the 
         following traits:
 
         - **Job Size** - How Much time or capacity does the job require?
         - **Business/User Value** - How much value will the job deliver when completed?
         - **Urgency** - What value do we permanently lose by delaying the task?
-        - **Risk Reduction** - Will doing the task now reduce the risk of not delivering on this task or another in the future?
-        - **Opportunity Enablement** - Will doing the taks create new opportunities, for example from what we learn?
+        - **Risk Reduction** - Will doing the task now reduce the risk of not delivering on this or another task in the future?
+        - **Opportunity Enablement** - Will doing the task create new opportunities, for example from what we learn?
         """
     )
 
@@ -72,11 +79,11 @@ with ui.layout_columns(col_widths=(8, 4, 12)):
                 return top_job()
 
     with ui.card():
-        ui.card_header("WSJF Calculator")
+        ui.card_header("Calculator")
         ui.markdown(
             "**Instructions**: Add your jobs by editing the rows below. Choose values relative to the other tasks."
         )
-        with ui.layout_columns(col_widths=(8, 4)):
+        with ui.layout_columns(col_widths=(10, 2)):
             # Make editable table
             @render.data_frame
             def jobs():
@@ -110,22 +117,18 @@ def priorities():
     # Calculate Cost of Delay
     df2['Cost of Delay'] = df2['Urgency'] + df2['Risk Reduction'] + df2['Opportunity']
 
-    # Filter rows where 'Size' is greater than 0
-    df_filtered = df2[(df2['Size'] > 0)]
-
     # Calculate new WSJF
-    df_filtered['rd'] = df_filtered['Size'] / df_filtered['Size'].min()
-    df_filtered['cod'] = df_filtered['Cost of Delay'] / df_filtered['Cost of Delay'].min()
-    df_filtered['WSJF'] = df_filtered['cod'] / df_filtered['rd']
+    df2['rd'] = wsjf_norm(df2['Size'])
+    df2['cod'] = wsjf_norm(df2['Cost of Delay'])
+    df2['WSJF'] = df2['cod'] / df2['rd']
 
-    return df_filtered[['Job Description', 'WSJF']]
+    return df2[['Job Description', 'WSJF']]
 
 # Let user add rows
 @reactive.effect
 @reactive.event(input.add_row)
 def _():
-    jobs.data_view()
-    new_tbl = priorities()._append(empty_row, ignore_index=True) 
+    new_tbl = jobs.data_view()._append(empty_row, ignore_index=True) 
     tbl.set(new_tbl)
     return None
 
