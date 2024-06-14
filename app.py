@@ -50,6 +50,7 @@ def wsjf_norm(x):
 # Set up the UI
 
 ui.page_opts(fillable=True)
+theme.flatly()
 
 with ui.layout_columns(col_widths=(8, 4, 12)):
     ui.markdown(
@@ -71,7 +72,7 @@ with ui.layout_columns(col_widths=(8, 4, 12)):
 
     with ui.card():
         # Display next job
-        with ui.value_box(showcase=fa.icon_svg("circle-check", "regular")):
+        with ui.value_box(showcase=fa.icon_svg("circle-check", "regular"), theme="primary"):
             "Next Job"
 
             @render.text
