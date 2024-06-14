@@ -111,12 +111,13 @@ def priorities():
 
     # Handle types
     df2['Size'] = df2['Size'].astype(int)
+    df2['Value'] = df2['Value'].astype(int)
     df2['Urgency'] = df2['Urgency'].astype(int)
     df2['Risk Reduction'] = df2['Risk Reduction'].astype(int)
     df2['Opportunity'] = df2['Opportunity'].astype(int)
 
     # Calculate Cost of Delay
-    df2['Cost of Delay'] = df2['Urgency'] + df2['Risk Reduction'] + df2['Opportunity']
+    df2['Cost of Delay'] = df2['Value'] + df2['Urgency'] + df2['Risk Reduction'] + df2['Opportunity']
 
     # Calculate new WSJF
     df2['rd'] = wsjf_norm(df2['Size'])
