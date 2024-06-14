@@ -4,6 +4,7 @@ import pandas as pd
 import faicons as fa
 from shiny import reactive
 from shiny.express import render, input, ui
+from shiny.types import SafeException
 from shinyswatch import theme
 
 # Prepare initial table
